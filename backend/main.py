@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import Response
 from twilio.rest import Client
 from dotenv import load_dotenv
+from fastapi import FastAPI, Form
 import os
 
 load_dotenv()
@@ -37,14 +38,21 @@ def trigger_call(to_number: str):
 
 @app.post("/voice-response")
 def voice_response():
-    """
-    This is what Twilio calls when the phone is picked up.
-    It tells Twilio what to say and to record the response.
-    """
     twiml = """<?xml version="1.0" encoding="UTF-8"?>
     <Response>
-        <Say voice="Polly.Joanna">Hi! This is your daily check in from Care Bridge. How are you feeling today? Please speak after the beep.</Say>
-        <Record maxLength="30" playBeep="true" />
+        <Gather input="speech" action="https://awry-until-unpaid.ngrok-free.dev/process-speech" method="POST" speechTimeout="auto">
+            <Say voice="Polly.Joanna">Hi! This is your daily check in from Care Bridge. How are you feeling today?</Say>
+        </Gather>
+        <Say>We didn't catch that. Have a great day!</Say>
+    </Response>"""
+    return Response(content=twiml, media_type="application/xml")
+
+
+@app.post("/process-speech")
+def process_speech(SpeechResult: str = Form(default="")):
+    print(f"User said: {SpeechResult}")
+    twiml = """<?xml version="1.0" encoding="UTF-8"?>
+    <Response>
         <Say>Thank you! Have a great day.</Say>
     </Response>"""
     return Response(content=twiml, media_type="application/xml")
