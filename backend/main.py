@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import Response
 from twilio.rest import Client
 from dotenv import load_dotenv
+import google.generativeai as genai
 from fastapi import FastAPI, Form
 import os
 
@@ -15,6 +16,12 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+# Gemini setup 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+gemini_model = genai.GenerativeModel("gemini-flash-latest")
+
 
 #to check if the server is working
 @app.get("/")
@@ -47,10 +54,42 @@ def voice_response():
     </Response>"""
     return Response(content=twiml, media_type="application/xml")
 
-#backend will recieve text and thank the usercd
+#function to check the user's response is normal or off by AI 
+def analyze_checkin(text: str) -> str:
+    """
+    Sends the transcript to Gemini and returns 'normal' or 'needs attention'.
+    """
+    if not text.strip():
+        return "needs attention"  # empty response = something's off
+
+    prompt = f"""
+    You are analyzing a daily check-in response from an elderly person living alone.
+    Their response was: "{text}"
+
+    Does this response sound normal, or does it show signs of confusion, distress,
+    sadness, or a missed routine (like forgetting medicine)?
+
+    Reply with ONLY one word: "normal" or "needs attention".
+    """
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        result = response.text.strip().lower()
+        if "needs attention" in result:
+            return "needs attention"
+        return "normal"
+    except Exception as e:
+        print(f"Gemini error: {e}")
+        return "needs attention"
+
+#backend will receive text, run AI analysis, and thank the user
 @app.post("/process-speech")
 def process_speech(SpeechResult: str = Form(default="")):
     print(f"User said: {SpeechResult}")
+
+    result = analyze_checkin(SpeechResult)
+    print(f"AI Analysis: {result}")
+
     twiml = """<?xml version="1.0" encoding="UTF-8"?>
     <Response>
         <Say>Thank you! Have a great day.</Say>
