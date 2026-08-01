@@ -16,12 +16,12 @@ TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-
+#to check if the server is working
 @app.get("/")
 def read_root():
     return {"message": "CareBridge backend is running!"}
 
-
+# Twilio will trigger call to the person
 @app.post("/trigger-call")
 def trigger_call(to_number: str):
     """
@@ -35,7 +35,7 @@ def trigger_call(to_number: str):
     )
     return {"call_sid": call.sid, "status": "Call triggered"}
 
-
+#Twilio converts voice to text
 @app.post("/voice-response")
 def voice_response():
     twiml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -47,7 +47,7 @@ def voice_response():
     </Response>"""
     return Response(content=twiml, media_type="application/xml")
 
-
+#backend will recieve text and thank the usercd
 @app.post("/process-speech")
 def process_speech(SpeechResult: str = Form(default="")):
     print(f"User said: {SpeechResult}")
