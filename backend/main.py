@@ -4,6 +4,8 @@ from twilio.rest import Client
 from dotenv import load_dotenv
 import google.generativeai as genai
 from fastapi import FastAPI, Form
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 import os
 
 load_dotenv()
@@ -14,6 +16,10 @@ app = FastAPI()
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+FAMILY_PHONE_NUMBER = os.getenv("FAMILY_PHONE_NUMBER")
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+FAMILY_EMAIL = os.getenv("FAMILY_EMAIL")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
@@ -82,6 +88,26 @@ def analyze_checkin(text: str) -> str:
         print(f"Gemini error: {e}")
         return "needs attention"
 
+#sends alert email to family if gemini says something is off
+def send_alert(transcript: str, family_email: str):
+    """
+    Sends an email alert to the family member when something seems off.
+    """
+    message = Mail(
+        from_email=SENDER_EMAIL,
+        to_emails=family_email,
+        subject="CareBridge Alert: Check-in needs your attention",
+        plain_text_content=f"Something seemed a little different today during the check-in. They said: \"{transcript}\" — worth a quick call to check in."
+    )
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(f"Alert email sent! Status: {response.status_code}")
+        return True
+    except Exception as e:
+        print(f"Failed to send alert email: {e}")
+        return False
+
 #backend will receive text, run AI analysis, and thank the user
 @app.post("/process-speech")
 def process_speech(SpeechResult: str = Form(default="")):
@@ -89,6 +115,9 @@ def process_speech(SpeechResult: str = Form(default="")):
 
     result = analyze_checkin(SpeechResult)
     print(f"AI Analysis: {result}")
+
+    if result == "needs attention":
+        send_alert(SpeechResult, FAMILY_EMAIL)
 
     twiml = """<?xml version="1.0" encoding="UTF-8"?>
     <Response>
