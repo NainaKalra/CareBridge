@@ -1,0 +1,84 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #FAF6EF;
+    color: #2E2E2E;
+    padding: 24px;
+}
+
+header {
+    margin-bottom: 32px;
+}
+
+header h1 {
+    font-family: 'Poppins', sans-serif;
+    color: #2C6E6B;
+    font-size: 32px;
+}
+
+header p {
+    color: #6B6B6B;
+    margin-top: 4px;
+}
+
+.status-banner {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 32px;
+    font-weight: 600;
+    border-left: 6px solid #4E9A61;
+}
+
+.status-banner.attention {
+    border-left: 6px solid #E0A030;
+}
+
+h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.checkin-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.checkin-card .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.badge.normal {
+    background-color: #E3F2E5;
+    color: #4E9A61;
+}
+
+.badge.attention {
+    background-color: #FCEFDA;
+    color: #E0A030;
+}
+
+.checkin-card .transcript {
+    font-size: 15px;
+    color: #2E2E2E;
+    margin-bottom: 6px;
+}
+
+.checkin-card .timestamp {
+    font-size: 13px;
+    color: #6B6B6B;
+}
