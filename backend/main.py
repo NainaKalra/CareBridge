@@ -10,10 +10,18 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 import os
+from fastapi.middleware.cors import CORSMiddleware 
 
 load_dotenv()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Twilio credentials from .env
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
@@ -151,3 +159,26 @@ def process_speech(SpeechResult: str = Form(default="")):
         <Say>Thank you! Have a great day.</Say>
     </Response>"""
     return Response(content=twiml, media_type="application/xml")
+
+
+
+@app.get("/checkins")
+def get_checkins():
+    """
+    Fetches all check-ins from Firestore, most recent first.
+    """
+    try:
+        checkins_ref = db.collection("checkins").order_by(
+            "timestamp", direction=firestore.Query.DESCENDING
+        )
+        docs = checkins_ref.stream()
+
+        results = []
+        for doc in docs:
+            data = doc.to_dict()
+            data["id"] = doc.id
+            results.append(data)
+
+        return {"checkins": results}
+    except Exception as e:
+        return {"error": str(e)}
