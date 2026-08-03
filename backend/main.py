@@ -6,6 +6,9 @@ import google.generativeai as genai
 from fastapi import FastAPI, Form
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import firebase_admin
+from firebase_admin import credentials, firestore
+from datetime import datetime
 import os
 
 load_dotenv()
@@ -27,6 +30,11 @@ client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 gemini_model = genai.GenerativeModel("gemini-flash-latest")
+
+# Firebase setup
+cred = credentials.Certificate("firebase-key.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 
 #to check if the server is working
@@ -88,6 +96,23 @@ def analyze_checkin(text: str) -> str:
         print(f"Gemini error: {e}")
         return "needs attention"
 
+#function to save check-in in db
+def save_checkin(transcript: str, ai_result: str):
+    """
+    Saves the check-in data to Firestore.
+    """
+    try:
+        doc_ref = db.collection("checkins").document()
+        doc_ref.set({
+            "transcript": transcript,
+            "ai_result": ai_result,
+            "timestamp": datetime.utcnow().isoformat(),
+            "alert_sent": ai_result == "needs attention"
+        })
+        print(f"Check-in saved to Firestore: {doc_ref.id}")
+    except Exception as e:
+        print(f"Failed to save check-in: {e}")
+
 #sends alert email to family if gemini says something is off
 def send_alert(transcript: str, family_email: str):
     """
@@ -116,6 +141,8 @@ def process_speech(SpeechResult: str = Form(default="")):
     result = analyze_checkin(SpeechResult)
     print(f"AI Analysis: {result}")
 
+    save_checkin(SpeechResult, result)
+    
     if result == "needs attention":
         send_alert(SpeechResult, FAMILY_EMAIL)
 
