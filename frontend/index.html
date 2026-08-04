@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>CareBridge Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBridge — Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
@@ -12,21 +13,53 @@
 
 <body>
 
-    <header>
-        <h1>CareBridge</h1>
-        <p>Daily check-in dashboard</p>
-    </header>
+    <div class="wrap">
 
-    <main>
-        <div id="status-banner" class="status-banner">
-            Loading latest status...
-        </div>
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark"></span>
+                <span class="brand-name">CareBridge</span>
+            </div>
+            <span class="topbar-sub">Family dashboard</span>
+        </header>
 
-        <h2>Check-in History</h2>
-        <div id="checkins-list">
-            Loading check-ins...
-        </div>
-    </main>
+        <section class="hero" id="hero">
+            <div class="hero-status">
+                <div class="pulse-wrap">
+                    <span class="pulse-ring" id="pulse-ring"></span>
+                    <span class="pulse-dot" id="pulse-dot"></span>
+                </div>
+                <div class="hero-text">
+                    <p class="hero-eyebrow" id="hero-eyebrow">Loading…</p>
+                    <h1 class="hero-title" id="hero-title">Checking in on things</h1>
+                    <p class="hero-sub" id="hero-sub">Fetching the latest check-in…</p>
+                </div>
+            </div>
+
+            <div class="stats-row" id="stats-row">
+                <div class="stat">
+                    <span class="stat-value" id="stat-total">—</span>
+                    <span class="stat-label">Total check-ins</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="stat-streak">—</span>
+                    <span class="stat-label">Day streak</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="stat-attention">—</span>
+                    <span class="stat-label">Needed attention</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="history">
+            <h2>Check-in history</h2>
+            <div id="timeline" class="timeline">
+                <p class="loading-text">Loading check-ins…</p>
+            </div>
+        </section>
+
+    </div>
 
     <script src="script.js"></script>
 </body>
