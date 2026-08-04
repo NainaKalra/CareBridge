@@ -72,7 +72,7 @@ def voice_response():
         <Gather input="speech" action="https://awry-until-unpaid.ngrok-free.dev/process-speech" method="POST" speechTimeout="auto">
             <Say voice="Polly.Joanna">Hi! This is your daily check in from Care Bridge. How are you feeling today?</Say>
         </Gather>
-        <Say>We didn't catch that. Have a great day!</Say>
+        <Redirect>https://awry-until-unpaid.ngrok-free.dev/process-speech</Redirect>
     </Response>"""
     return Response(content=twiml, media_type="application/xml")
 
