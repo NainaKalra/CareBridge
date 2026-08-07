@@ -11,6 +11,7 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 import os
 from fastapi.middleware.cors import CORSMiddleware 
+import json
 
 load_dotenv()
 
@@ -40,7 +41,9 @@ genai.configure(api_key=GEMINI_API_KEY)
 gemini_model = genai.GenerativeModel("gemini-flash-latest")
 
 # Firebase setup
-cred = credentials.Certificate("firebase-key.json")
+firebase_key_json = os.getenv("FIREBASE_KEY_JSON")
+cred_dict = json.loads(firebase_key_json)
+cred = credentials.Certificate(cred_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
