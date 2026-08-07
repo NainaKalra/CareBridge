@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://carebridge-backend-927h.onrender.com";
 
 function timeAgo(dateStr) {
     const diffMs = Date.now() - new Date(dateStr).getTime();
